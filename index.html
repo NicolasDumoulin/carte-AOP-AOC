@@ -34,6 +34,7 @@
   <div id="aboutbox">
     <p>Cette page permet d'afficher les communes des AOC/AOP. Les données <a href="https://www.data.gouv.fr/fr/dataset/aires-geographiques-des-aoc-aop">proviennent de l'Institut national de l'origine et de la qualité</a>.</p>
     <p>Le code source utilisé et les détails pour produire cette carte sont <a href="https://github.com/NicolasDumoulin/carte-AOP-AOC">disponible sous licence AGPL</a>.</p>
+    <p>Crédits cartographiques : <div id="attribution"></div></p>
   </div>
   
 <script type="text/javascript">
@@ -53,7 +54,7 @@
         new OpenLayers.Control.MousePosition(),
         new OpenLayers.Control.LayerSwitcher(),
         new OpenLayers.Control.ScaleLine({geodesic:true, div: $("#scaleline")[0],bottomOutUnits:'',bottomInUnits:'',maxWidth:150}),
-        new OpenLayers.Control.Attribution()],
+        new OpenLayers.Control.Attribution({div: OpenLayers.Util.getElement('attribution')})],
       maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
       maxResolution: 156543.0399,
       numZoomLevels: 19,
