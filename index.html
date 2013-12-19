@@ -33,7 +33,8 @@
 
   <div id="aboutbox">
     <p>Cette page permet d'afficher les communes des AOC/AOP. Les données <a href="https://www.data.gouv.fr/fr/dataset/aires-geographiques-des-aoc-aop">proviennent de l'Institut national de l'origine et de la qualité</a>.</p>
-    <p>Le code source utilisé et les détails pour produire cette carte sont <a href="https://github.com/NicolasDumoulin/carte-AOP-AOC">disponible sous licence AGPL</a>.</div>
+    <p>Le code source utilisé et les détails pour produire cette carte sont <a href="https://github.com/NicolasDumoulin/carte-AOP-AOC">disponible sous licence AGPL</a>.</p>
+  </div>
   
 <script type="text/javascript">
   // map initialisation
@@ -45,7 +46,6 @@
   var map;
   var geojsonFormat;
   var aoslayer;
-  var displayedIDA=0;
   function initMap() {
     map = new OpenLayers.Map ("map", {
       controls:[new OpenLayers.Control.Navigation(),
@@ -127,7 +127,7 @@
       aoslayer.addFeatures(geojsonFormat.read(data));
       map.zoomToExtent(aoslayer.getDataExtent())
       $("#loading").hide();
-      $("#permalink").html('<a href="./?ida='+displayedIDA+'">Lien permanent</a>');
+      $("#permalink").html('<a href="./?ida='+ida+'">Lien permanent</a>');
     });
   }
   
@@ -149,7 +149,7 @@
     initAOList();
     initEvents();
     // extract the "ida" url parameter
-    var ida = (RegExp('ida=([0-9]+?).*(&|$)').exec(location.search) || [,""])[1];
+    var ida = (RegExp('ida=([0-9]+?)[^0-9]*(&|$)').exec(location.search) || [,""])[1];
     if (ida.length > 0) {
       loadAO(ida);
     }
