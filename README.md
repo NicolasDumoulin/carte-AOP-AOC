@@ -29,3 +29,11 @@ Remarques sur le jeu de données
 -------------------------------
 
 Les codes INSEE utilisés dans le jeu de données sont obsolètes et sont donc remplacés dans le script par les codes INSEE actuels. Certains codes INSEE semblent dater de 1972, puisque le code "71260" est utilisé dans le fichier et cette commune (Loché) semble avoir été fusionnée en 1972 avec Mâcon d'après http://www.insee.fr/fr/methodes/nomenclatures/cog/fichecommunale.asp?codedep=71&codecom=270
+
+À faire
+-------
+
+ * Affichage du nom de la commune et des autres aires éventuellement sur la commune au survol d'une commune affichée
+ * L'affichage des limites de toutes les aires n'est pas envisageable, mais il serait possible d'afficher un point pour chaque aire, avec un diamètre proportionnel à la surface de l'aire.
+ * Classement des aires par types de produit
+ 
