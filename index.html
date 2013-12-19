@@ -17,6 +17,7 @@
     <input id="area" value="" type="text"></input>
     <a href="#" id="chooseArea">Choisir</a>
     <a id="openabout" href="#" target="blank">À propos</a>
+    <span id="permalink"></span>
     <span id="loading">Chargement des données …</span>
   </div>
 
@@ -40,6 +41,7 @@
   var map;
   var geojsonFormat;
   var aoslayer;
+  var displayedIDA=0;
   function initMap() {
     map = new OpenLayers.Map ("map", {
       controls:[new OpenLayers.Control.Navigation(),
@@ -86,7 +88,7 @@
   function initAOList() {
     $.getJSON('ao-json/index.txt', function(data) {
       for (var i = 0;i < data.length;i++) {
-        $("#areaPropositions").append('<a href="#" class="areaProposition" ida='+data[i][2]+'>'+data[i][0]+"<br/></a>");
+        $("#areaPropositions").append('<a href="#" class="areaProposition" ida='+data[i][1]+'>'+data[i][0]+"<br/></a>");
       }
       $('.areaProposition').hover(
         function(){ $(this).animate({paddingLeft: '+=10'}, 200); },
@@ -114,13 +116,15 @@
       $("#loading").hide();
     })
   }
-  function loadAO(idaFile) {
+  function loadAO(ida) {
+    var idaFile = 'ao-json/'+ida+'.json';
     $("#loading").show();
     $.getJSON(idaFile, function(data) {
       aoslayer.removeAllFeatures();
       aoslayer.addFeatures(geojsonFormat.read(data));
       map.zoomToExtent(aoslayer.getDataExtent())
       $("#loading").hide();
+      $("#permalink").html('<a href="./?ida='+displayedIDA+'">Lien permanent</a>');
     });
   }
   
@@ -141,6 +145,10 @@
     initMap();
     initAOList();
     initEvents();
-//     loadAO('ao-json/1269.json');
+    // extract the "ida" url parameter
+    var ida = (RegExp('ida=([0-9]+?).*(&|$)').exec(location.search) || [,""])[1];
+    if (ida.length > 0) {
+      loadAO(ida);
+    }
   })
 </script>
