@@ -116,6 +116,12 @@
         areaChooser.dialog('close');
         loadAO($(this).attr('ida'));
       });
+      // extract the "ida" url parameter
+      var ida = (RegExp('ida=([0-9]+?)[^0-9]*(&|$)').exec(location.search) || [,""])[1];
+      if (ida.length > 0) {
+        loadAO(ida);
+        $("#area").val($(".areaProposition[ida="+ida+"]").text());
+      }
       $("#loading").hide();
     })
   }
@@ -148,10 +154,5 @@
     initMap();
     initAOList();
     initEvents();
-    // extract the "ida" url parameter
-    var ida = (RegExp('ida=([0-9]+?)[^0-9]*(&|$)').exec(location.search) || [,""])[1];
-    if (ida.length > 0) {
-      loadAO(ida);
-    }
   })
 </script>
