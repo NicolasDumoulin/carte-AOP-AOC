@@ -3,6 +3,8 @@ carte-AOP-AOC
 
 Une carte affichant les zones d'AOP et AOC à partir des données publiées sur https://www.data.gouv.fr/fr/dataset/aires-geographiques-des-aoc-aop
 
+[La carte est en ligne ici](http://osm.dumoulin63.net/carte-AO/)
+
 Récupération des données
 ------------------------
 
