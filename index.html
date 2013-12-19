@@ -150,10 +150,11 @@
   }
   function setAreaName(name) {
     $("#area").val(name);
-    if (name.length > 15) {
-      $('#area').width(name.length * 10);
+    if (name.length > 20) {
+      $('#area').width(name.length * 11);
     } else {
-      $('#area').width(50);
+    console.log('fallback');
+      $('#area').width(200);
     }
   }
   $(document).ready(function(){
