@@ -19,6 +19,13 @@ Récupération des données
 Utilisation
 -----------
 
-Quand le script fonctionnera, il suffira de faire :
     python buildMapData.py
+
+Le script génère :
+ * répertoire ao-shp contenant un fichier au format ESRI ShapeFile
+ * un répertoire ao-json contenant un fichier au format GeoJson pour chaque aire
     
+Remarques sur le jeu de données
+-------------------------------
+
+Les codes INSEE utilisés dans le jeu de données sont obsolètes et sont donc remplacés dans le script par les codes INSEE actuels. Certains codes INSEE semblent dater de 1972, puisque le code "71260" est utilisé dans le fichier et cette commune (Loché) semble avoir été fusionnée en 1972 avec Mâcon d'après http://www.insee.fr/fr/methodes/nomenclatures/cog/fichecommunale.asp?codedep=71&codecom=270

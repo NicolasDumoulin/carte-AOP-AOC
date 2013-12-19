@@ -3,9 +3,18 @@ import os, shutil, csv, ogr
 
 aos = {}
 munsInfos = {}
-for line in csv.reader(open('ao-input/2013-12-12-comagri-communes-aires-ao.csv', 'rb'), delimiter=';'):
+reader = csv.reader(open('ao-input/2013-12-12-comagri-communes-aires-ao.csv', 'rb'), delimiter=';')
+reader.next()
+for line in reader:
   ida = line[5]
   insee = line[0]
+  # in othe datasets, insee code has 5 characters, so we normalize
+  if len(insee)==4: insee = '0'+insee
+  # updating some insee codes
+  for new,olds in [['89068',['89185','89258','89305']], ['71270',['71260']]]:
+    if insee in olds:
+      print('Warning: obsolete insee code found '+insee+', replaced by the actual one '+new)
+      insee = new
   ao = {'ida':ida, 'name':line[4], 'muns':[]}
   if ida in aos.keys(): ao = aos[ida]
   else: aos[ida] = ao
@@ -15,7 +24,6 @@ for line in csv.reader(open('ao-input/2013-12-12-comagri-communes-aires-ao.csv',
   else: munsInfos[insee] = munInfos
   munInfos.append(ao)
                 
-
 # Open the municipalities boundaries shapefile
 shpDriver = ogr.GetDriverByName("ESRI Shapefile")
 munsDatasource = shpDriver.Open('communes/communes-fla250.shp')
@@ -26,13 +34,6 @@ if os.path.exists('ao-shp'): shutil.rmtree('ao-shp')
 os.mkdir('ao-shp')
 aoShp = shpDriver.CreateDataSource('ao-shp/ao.shp')
 aoLayer = aoShp.CreateLayer('areas', srs=munsLayer.GetSpatialRef(), geom_type=ogr.wkbPolygon)
-#aoLayer = aoShp.CreateLayer('areas', geom_type=ogr.wkbLineString)
-# Create a geojson file for writing the areas
-geojsonDriver = ogr.GetDriverByName('GeoJSON')
-if os.path.exists('ao.json'): os.remove('ao.json')
-aoJson = geojsonDriver.CreateDataSource('ao.json')
-# FIXME AttributeError: 'NoneType' object has no attribute 'CreateLayer'
-#aoLayerJson = aoJson.CreateLayer("areas", srs=munsLayer.GetSpatialRef(), geom_type=ogr.wkbPolygon)
 # the properties of the features of the new shp file
 for fieldName,fieldType in [['insee',ogr.OFTString],['Name',ogr.OFTString],['ida',ogr.OFTString],['aire',ogr.OFTString]]:
   fd = ogr.FieldDefn(fieldName,fieldType)
@@ -49,9 +50,33 @@ for index in xrange(munsLayer.GetFeatureCount()):
       newFeature.SetField('ida', munInfos['ida'])
       newFeature.SetField('aire', munInfos['name'])
       newFeature.SetGeometry(feature.GetGeometryRef())
-      # add the feature in the shp and the geojson layers
+      # add the feature in the shp
       if aoLayer.CreateFeature(newFeature) != 0:
         print("error in feature creation")
-      #aoLayerJson.CreateFeature(newFeature)
+      # storing features for later json writing
+      aoFeatures = aos[munInfos['ida']].get('features')
+      if aoFeatures == None:
+        aoFeatures = []
+        aos[munInfos['ida']]['features'] = aoFeatures
+      aoFeatures.append(newFeature)
 # need to reset the variable for commiting the records      
 aoShp = None
+
+# Now, writing the geojson files
+if os.path.exists('ao-json'): shutil.rmtree('ao-json')
+os.mkdir('ao-json')
+
+geojsonDriver = ogr.GetDriverByName('GeoJSON')
+filesList = []
+for ida,ao in aos.iteritems():
+  jsonDataSource = geojsonDriver.CreateDataSource('ao-json/'+ida+'.json')
+  filesList.append([ao['name'].decode("ISO-8859-1"),ida,'ao-json/'+ida+'.json'])
+  aoLayerJson = jsonDataSource.CreateLayer("areas", srs=munsLayer.GetSpatialRef(), geom_type=ogr.wkbPolygon)
+  for feature in ao['features']:
+    aoLayerJson.CreateFeature(feature)
+    aoLayerJson.CommitTransaction
+    jsonDataSource.SyncToDisk()
+  
+import json
+with open('ao-json/index.txt', 'w') as outfile:
+  json.dump(filesList, outfile)
