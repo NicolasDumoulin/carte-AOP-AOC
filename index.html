@@ -15,7 +15,7 @@
 
   <div id="areaContainer" class="ui-widget ui-widget-content ui-corner-all">
     <div style="float:left">
-      <input id="area" value="" type="text"></input>
+      <input id="area" value="" type="text" disabled="true"></input>
       <a href="#" id="chooseArea">Choisir</a>
       <a id="openabout" href="#" target="blank">À propos</a>
       <span id="permalink"></span>
@@ -111,7 +111,7 @@
       });
       // action on area selection
       $(".areaProposition").click(function(){
-        $("#area").val($(this).text());
+        setAreaName($(this).text());
         areaChooser.dialog('close');
         loadAO($(this).attr('ida'));
       });
@@ -119,7 +119,7 @@
       var ida = (RegExp('ida=([0-9]+?)[^0-9]*(&|$)').exec(location.search) || [,""])[1];
       if (ida.length > 0) {
         loadAO(ida);
-        $("#area").val($(".areaProposition[ida="+ida+"]").text());
+        setAreaName($(".areaProposition[ida="+ida+"]").text());
       }
       $("#loading").hide();
     })
@@ -147,6 +147,14 @@
       aboutBox.dialog('open');
       return false;
     });
+  }
+  function setAreaName(name) {
+    $("#area").val(name);
+    if (name.length > 15) {
+      $('#area').width(name.length * 10);
+    } else {
+      $('#area').width(50);
+    }
   }
   $(document).ready(function(){
     $("#loading").show();
