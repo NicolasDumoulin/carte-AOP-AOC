@@ -25,34 +25,33 @@ munsLayer = munsDatasource.GetLayer()
 if os.path.exists('ao-shp'): shutil.rmtree('ao-shp')
 os.mkdir('ao-shp')
 aoShp = shpDriver.CreateDataSource('ao-shp/ao.shp')
-#aoLayer = aoShp.CreateLayer('areas', srs=munsLayer.GetSpatialRef(), geom_type=ogr.wkbPolygon)
-aoLayer = aoShp.CreateLayer('areas', geom_type=ogr.wkbLineString)
+aoLayer = aoShp.CreateLayer('areas', srs=munsLayer.GetSpatialRef(), geom_type=ogr.wkbPolygon)
+#aoLayer = aoShp.CreateLayer('areas', geom_type=ogr.wkbLineString)
 # Create a geojson file for writing the areas
 geojsonDriver = ogr.GetDriverByName('GeoJSON')
+if os.path.exists('ao.json'): os.remove('ao.json')
 aoJson = geojsonDriver.CreateDataSource('ao.json')
 # FIXME AttributeError: 'NoneType' object has no attribute 'CreateLayer'
 #aoLayerJson = aoJson.CreateLayer("areas", srs=munsLayer.GetSpatialRef(), geom_type=ogr.wkbPolygon)
 # the properties of the features of the new shp file
-properties = ogr.FeatureDefn()
-properties.AddFieldDefn(ogr.FieldDefn('insee'))
-properties.AddFieldDefn(ogr.FieldDefn('name'))
-properties.AddFieldDefn(ogr.FieldDefn('ida', ogr.OFTStringList))
-properties.AddFieldDefn(ogr.FieldDefn('aires', ogr.OFTStringList))
-# FIXME the produced shp file contains 0 features!
+for fieldName,fieldType in [['insee',ogr.OFTString],['Name',ogr.OFTString],['ida',ogr.OFTString],['aire',ogr.OFTString]]:
+  fd = ogr.FieldDefn(fieldName,fieldType)
+  aoLayer.CreateField(fd)
 for index in xrange(munsLayer.GetFeatureCount()):
   # create the feature
   feature = munsLayer.GetFeature(index)
-  newFeature = ogr.Feature(properties)
   insee = feature.GetFieldAsString('insee')
-  newFeature.SetField('insee', insee)
-  newFeature.SetField(1, 'TODO')
   if insee in munsInfos:
-    munInfos = munsInfos[insee]
-    newFeature.SetFieldStringList(2, [x['ida'] for x in munInfos])
-    newFeature.SetFieldStringList(3, [x['name'] for x in munInfos])
-  newFeature.SetGeometry(feature.GetGeometryRef())
-  # add the feature in the shp and the geojson layers
-  if aoLayer.CreateFeature(newFeature) != 0:
-    print("error in feature creation")
-  #aoLayerJson.CreateFeature(newFeature)
-
+    for munInfos in munsInfos[insee]:
+      newFeature = ogr.Feature(aoLayer.GetLayerDefn())
+      newFeature.SetField('insee', insee)
+      newFeature.SetField('Name', 'TODO')
+      newFeature.SetField('ida', munInfos['ida'])
+      newFeature.SetField('aire', munInfos['name'])
+      newFeature.SetGeometry(feature.GetGeometryRef())
+      # add the feature in the shp and the geojson layers
+      if aoLayer.CreateFeature(newFeature) != 0:
+        print("error in feature creation")
+      #aoLayerJson.CreateFeature(newFeature)
+# need to reset the variable for commiting the records      
+aoShp = None
