@@ -32,14 +32,14 @@
   
 <script type="text/javascript">
   // map initialisation
-  var lon = 2.795;
-  var lat = 45.045;
-  var zoom = 10;
+  var lon = 2;
+  var lat = 46;
+  var zoom = 5;
   var aboutBox;
   var areaChooser;
-//   var map;
+  var map;
   var geojsonFormat;
-//   var aoslayer;
+  var aoslayer;
   function initMap() {
     map = new OpenLayers.Map ("map", {
       controls:[new OpenLayers.Control.Navigation(),
@@ -75,19 +75,18 @@
     var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), new OpenLayers.Projection("EPSG:900913"));
     if (!map.getCenter()) {
       map.setCenter (lonLat, zoom);
-      if (navigator.geolocation){
+      /*if (navigator.geolocation){
         navigator.geolocation.getCurrentPosition(function(position) {                
-          map.setCenter(lonLat, 10);
+          map.setCenter(lonLat, 5);
         });
-      }
+      }*/
     }
   }
   // init the list of "Appelations d'Origine" and build the dialog box for choosing one of them
   function initAOList() {
     $.getJSON('ao-json/index.txt', function(data) {
-      list=data;
       for (var i = 0;i < data.length;i++) {
-        $("#areaPropositions").append('<a href="#" class="areaProposition" ida='+data[i][2]+'>'+data[i][0]+"</a><br/>");
+        $("#areaPropositions").append('<a href="#" class="areaProposition" ida='+data[i][2]+'>'+data[i][0]+"<br/></a>");
       }
       $('.areaProposition').hover(
         function(){ $(this).animate({paddingLeft: '+=10'}, 200); },
@@ -96,13 +95,15 @@
       // filtering in list of areas
       $("#areaInput").keyup(function(e){
         var filter = $(this).val();
-        $(".areaProposition").each(function() {
-          if($(this).text().toLowerCase().indexOf(filter.toLowerCase()) < 0) {
-            $(this).fadeOut("fast");
-          } else {
-            $(this).fadeIn("fast");
-          }
-        });
+        if (filter.length>2) {
+          $(".areaProposition").each(function() {
+            if($(this).text().toLowerCase().indexOf(filter.toLowerCase()) < 0) {
+              $(this).fadeOut("fast");
+            } else {
+              $(this).fadeIn("fast");
+            }
+          });
+        }
       });
       // action on area selection
       $(".areaProposition").click(function(){
@@ -116,7 +117,6 @@
   function loadAO(idaFile) {
     $("#loading").show();
     $.getJSON(idaFile, function(data) {
-      aos=data;
       aoslayer.removeAllFeatures();
       aoslayer.addFeatures(geojsonFormat.read(data));
       map.zoomToExtent(aoslayer.getDataExtent())
@@ -125,12 +125,12 @@
   }
   
   function initEvents() {
-    areaChooser = $("#areasContainer").dialog({ autoOpen: false, title: 'Choisissez une aire', width:"auto", height: Math.min($(window).height()-15,600), zIndex:11000});
+    areaChooser = $("#areasContainer").dialog({autoOpen: false, title: 'Choisissez une aire', width:"auto", height: Math.min($(window).height()-15,600), zIndex:11000});
     $('#chooseArea').click(function() {
         areaChooser.dialog('open');
         return false;
       });
-    aboutBox = $("#aboutbox").dialog({title:"À propos"});
+    aboutBox = $("#aboutbox").dialog({autoOpen:false, title:"À propos"});
     $('#openabout').click(function(){
       aboutBox.dialog('open');
       return false;
@@ -141,6 +141,6 @@
     initMap();
     initAOList();
     initEvents();
-    loadAO('ao-json/1269.json');
+//     loadAO('ao-json/1269.json');
   })
 </script>
