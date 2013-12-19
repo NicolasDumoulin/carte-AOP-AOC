@@ -7,17 +7,21 @@
   <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
   <script type="text/javascript" src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
   <style type="text/css">
-    #aboutbox pre {overflow-y:hidden;overflow-x:auto}
+    #aboutbox pre {overflow-y:hidden; overflow-x:auto}
     .ui-front { z-index:1000; }
+    #scaleline { float:left; font-size: xx-small; padding-top:5px; padding-left: 5px; }
   </style>
 </head>
 <body>
 
   <div id="areaContainer" class="ui-widget ui-widget-content ui-corner-all">
-    <input id="area" value="" type="text"></input>
-    <a href="#" id="chooseArea">Choisir</a>
-    <a id="openabout" href="#" target="blank">À propos</a>
-    <span id="permalink"></span>
+    <div style="float:left">
+      <input id="area" value="" type="text"></input>
+      <a href="#" id="chooseArea">Choisir</a>
+      <a id="openabout" href="#" target="blank">À propos</a>
+      <span id="permalink"></span>
+    </div>
+    <span id="scaleline"></span>
     <span id="loading">Chargement des données …</span>
   </div>
 
@@ -45,11 +49,10 @@
   function initMap() {
     map = new OpenLayers.Map ("map", {
       controls:[new OpenLayers.Control.Navigation(),
-        new OpenLayers.Control.Permalink(),
         new OpenLayers.Control.PanZoom(),
         new OpenLayers.Control.MousePosition(),
         new OpenLayers.Control.LayerSwitcher(),
-        new OpenLayers.Control.ScaleLine({geodesic:true}),
+        new OpenLayers.Control.ScaleLine({geodesic:true, div: $("#scaleline")[0],bottomOutUnits:'',bottomInUnits:'',maxWidth:150}),
         new OpenLayers.Control.Attribution()],
       maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
       maxResolution: 156543.0399,
