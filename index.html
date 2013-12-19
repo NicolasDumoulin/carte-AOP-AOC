@@ -26,11 +26,16 @@
   </div>
   <div id="map"></div>
 
+  <div id="aboutbox">
+    <p>Cette page permet d'afficher les communes des AOC/AOP. Les données <a href="https://www.data.gouv.fr/fr/dataset/aires-geographiques-des-aoc-aop">proviennent de l'Institut national de l'origine et de la qualité</a>.</p>
+    <p>Le code source utilisé et les détails pour produire cette carte sont <a href="https://github.com/NicolasDumoulin/carte-AOP-AOC">disponible sous licence AGPL</a>.</div>
+  
 <script type="text/javascript">
   // map initialisation
   var lon = 2.795;
   var lat = 45.045;
   var zoom = 10;
+  var aboutBox;
   var areaChooser;
 //   var map;
   var geojsonFormat;
@@ -125,7 +130,11 @@
         areaChooser.dialog('open');
         return false;
       });
-      
+    aboutBox = $("#aboutbox").dialog({title:"À propos"});
+    $('#openabout').click(function(){
+      aboutBox.dialog('open');
+      return false;
+    });
   }
   $(document).ready(function(){
     $("#loading").show();
