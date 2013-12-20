@@ -36,6 +36,7 @@ Les codes INSEE utilisés dans le jeu de données sont obsolètes et sont donc r
 -------
 
  * Affichage du nom de la commune et des autres aires éventuellement sur la commune au survol d'une commune affichée
- * L'affichage des limites de toutes les aires n'est pas envisageable, mais il serait possible d'afficher un point pour chaque aire, avec un diamètre proportionnel à la surface de l'aire.
  * Classement des aires par types de produit
+ * Affichage du lien vers la page wikipedia de l'AO
+ * Affichage du lien vers la page de l'INAO. Exemple avec la [page du Munster](http://www.inao.gouv.fr/public/produits/showTexte.php?ID_TEXTE_CONSOLIDE=455), un code est présent dans l'URL mais manque de chance il ne correspond pas au code présent dans le fichier de données (1475 pour le Munster).
  

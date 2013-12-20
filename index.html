@@ -4,6 +4,7 @@
   <title>Carte des AOP/AOC</title>
   <link type="text/css" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" rel="Stylesheet" />   
   <script type="text/javascript" src="http://openlayers.org/api/OpenLayers.js"></script>
+  <script type="text/javascript" src="ToolTips.js"></script>
   <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
   <script type="text/javascript" src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
   <style type="text/css">
@@ -46,6 +47,8 @@
   var map;
   var geojsonFormat;
   var aoslayer;
+  var aosCentersLayer;
+  var controlSelection;
   function initMap() {
     map = new OpenLayers.Map ("map", {
       controls:[new OpenLayers.Control.Navigation(),
@@ -75,7 +78,29 @@
       })
     }); 
     map.addLayer(aoslayer);
-
+    aosCentersLayer = new OpenLayers.Layer.Vector("Aires d'origines (centres)", {
+      styleMap: new OpenLayers.StyleMap({
+        default: OpenLayers.Util.applyDefaults({strokeOpacity: 0, fillOpacity: 1, fillColor:"#2E1EDC", pointRadius:"${radius}"},OpenLayers.Feature.Vector.style["default"]),
+        select: OpenLayers.Util.applyDefaults({strokeColor: "#682697", strokeWidth: 3},OpenLayers.Feature.Vector.style["select"])
+      })
+    }); 
+    map.addLayer(aosCentersLayer);
+    // selection and highlighting
+    var tooltip = new OpenLayers.Control.ToolTips({shadow:true});
+    map.addControl(tooltip);
+    var controlHighlight = new OpenLayers.Control.SelectFeature(aosCentersLayer, {
+      callbacks: { 
+        click: function(feature) { 
+          var ida = feature.attributes.ida;
+          loadAO(ida);
+        }, 
+        over: function(feature) {tooltip.show({html:feature.attributes["nom"]}) }, 
+        out: function(feature) { tooltip.hide();} 
+      }
+    });
+    map.addControl(controlHighlight);
+    controlHighlight.activate();
+    
     var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), new OpenLayers.Projection("EPSG:900913"));
     if (!map.getCenter()) {
       map.setCenter (lonLat, zoom);
@@ -111,7 +136,6 @@
       });
       // action on area selection
       $(".areaProposition").click(function(){
-        setAreaName($(this).text());
         areaChooser.dialog('close');
         loadAO($(this).attr('ida'));
       });
@@ -119,16 +143,25 @@
       var ida = (RegExp('ida=([0-9]+?)[^0-9]*(&|$)').exec(location.search) || [,""])[1];
       if (ida.length > 0) {
         loadAO(ida);
-        setAreaName($(".areaProposition[ida="+ida+"]").text());
       }
       $("#loading").hide();
-    })
+    });
+  }
+  function initAOCenters() {
+    $.getJSON('ao-json/centers.json', function(data) {
+      var features = geojsonFormat.read(data);
+      for (var i=0;i<features.length;i++) {
+        features[i].attributes.radius = features[i].attributes.superficie/1.5+2;
+      }
+      aosCentersLayer.addFeatures(features);
+    });
   }
   function loadAO(ida) {
     var idaFile = 'ao-json/'+ida+'.json';
     $("#loading").show();
     $.getJSON(idaFile, function(data) {
       aoslayer.removeAllFeatures();
+      setAreaName($(".areaProposition[ida="+ida+"]").text());
       aoslayer.addFeatures(geojsonFormat.read(data));
       map.zoomToExtent(aoslayer.getDataExtent())
       $("#loading").hide();
@@ -153,7 +186,6 @@
     if (name.length > 20) {
       $('#area').width(name.length * 11);
     } else {
-    console.log('fallback');
       $('#area').width(200);
     }
   }
@@ -161,6 +193,7 @@
     $("#loading").show();
     initMap();
     initAOList();
+    initAOCenters();
     initEvents();
   })
 </script>

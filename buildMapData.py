@@ -68,15 +68,33 @@ os.mkdir('ao-json')
 
 geojsonDriver = ogr.GetDriverByName('GeoJSON')
 filesList = []
+jsonAreasCentersDataSource = geojsonDriver.CreateDataSource('ao-json/centers.json')
+jsonAreasCenters = jsonAreasCentersDataSource.CreateLayer("areas", srs=munsLayer.GetSpatialRef(), geom_type=ogr.wkbPoint)
+areas=[]
+for fieldName,fieldType in [['ida',ogr.OFTString],['nom',ogr.OFTString],['superficie',ogr.OFTString]]:
+  fd = ogr.FieldDefn(fieldName,fieldType)
+  jsonAreasCenters.CreateField(fd)
 for ida,ao in aos.iteritems():
+  aoName = ao['name'].decode("ISO-8859-1")
   jsonDataSource = geojsonDriver.CreateDataSource('ao-json/'+ida+'.json')
-  filesList.append([ao['name'].decode("ISO-8859-1"),ida,'ao-json/'+ida+'.json'])
+  filesList.append([aoName,ida,'ao-json/'+ida+'.json'])
   aoLayerJson = jsonDataSource.CreateLayer("areas", srs=munsLayer.GetSpatialRef(), geom_type=ogr.wkbPolygon)
-  for feature in ao['features']:
-    aoLayerJson.CreateFeature(feature)
-    aoLayerJson.CommitTransaction
-    jsonDataSource.SyncToDisk()
-  
+  if 'features' in ao:
+    # build the centroid
+    enveloppe = ao['features'][0].geometry()
+    for feature in ao['features'][1:]: enveloppe = enveloppe.Union(feature.geometry())
+    feature = ogr.Feature(jsonAreasCenters.GetLayerDefn())
+    feature.SetField('ida', ida)
+    feature.SetField('nom', aoName.encode('utf-8'))
+    feature.SetField('superficie', enveloppe.GetArea())
+    areas.append(enveloppe.GetArea())
+    feature.SetGeometry(enveloppe.Centroid())
+    jsonAreasCenters.CreateFeature(feature)
+    # add the polygons
+    for feature in ao['features']:
+      aoLayerJson.CreateFeature(feature)
+jsonAreasCentersDataSource = None
+
 import json
 with open('ao-json/index.txt', 'w') as outfile:
   json.dump(filesList, outfile)
