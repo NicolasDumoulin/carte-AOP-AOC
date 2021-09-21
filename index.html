@@ -2,7 +2,7 @@
 <head>
   <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
   <title>Carte des AOP/AOC</title>
-  <link type="text/css" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" rel="Stylesheet" />   
+  <link type="text/css" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" rel="Stylesheet" />
   <script type="text/javascript" src="http://openlayers.org/api/OpenLayers.js"></script>
   <script type="text/javascript" src="ToolTips.js"></script>
   <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
@@ -36,7 +36,7 @@
     <p>Le code source utilisé et les détails pour produire cette carte sont <a href="https://github.com/NicolasDumoulin/carte-AOP-AOC">disponible sous licence AGPL</a>.</p>
     <p>Crédits cartographiques : <div id="attribution"></div></p>
   </div>
-  
+
 <script type="text/javascript">
   // map initialisation
   var lon = 2;
@@ -63,9 +63,9 @@
       projection: new OpenLayers.Projection("EPSG:900913"),
       displayProjection: new OpenLayers.Projection("EPSG:4326")
     });
-    map.addLayer(new OpenLayers.Layer.OSM("MapQuest", "http://otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.png", {
+    map.addLayer(new OpenLayers.Layer.OSM("OpenStreetMap", "https://tile.openstreetmap.org/${z}/${x}/${y}.png", {
       displayOutsideMaxExtent: true, isBaseLayer: true,
-      'attribution': '<a href="http://www.openstreetmap.org" target="_blank">OpenStreetMap</a> - <a href="http://open.mapquest.co.uk" target="_blank">MapQuest</a>'
+      'attribution': '<a href="http://www.openstreetmap.org" target="_blank">OpenStreetMap</a>'
     }));
     geojsonFormat = new OpenLayers.Format.GeoJSON({
       internalProjection: new OpenLayers.Projection("EPSG:900913"),
@@ -76,36 +76,36 @@
         default: OpenLayers.Util.applyDefaults({strokeColor: "#2E1EDC", fillOpacity: 0, strokeWidth:3},OpenLayers.Feature.Vector.style["default"]),
         select: OpenLayers.Util.applyDefaults({strokeColor: "#682697", strokeWidth: 3},OpenLayers.Feature.Vector.style["select"])
       })
-    }); 
+    });
     map.addLayer(aoslayer);
     aosCentersLayer = new OpenLayers.Layer.Vector("Aires d'origines (centres)", {
       styleMap: new OpenLayers.StyleMap({
         default: OpenLayers.Util.applyDefaults({strokeOpacity: 0, fillOpacity: 1, fillColor:"#2E1EDC", pointRadius:"${radius}"},OpenLayers.Feature.Vector.style["default"]),
         select: OpenLayers.Util.applyDefaults({strokeColor: "#682697", strokeWidth: 3},OpenLayers.Feature.Vector.style["select"])
       })
-    }); 
+    });
     map.addLayer(aosCentersLayer);
     // selection and highlighting
     var tooltip = new OpenLayers.Control.ToolTips({shadow:true});
     map.addControl(tooltip);
     var controlHighlight = new OpenLayers.Control.SelectFeature(aosCentersLayer, {
-      callbacks: { 
-        click: function(feature) { 
+      callbacks: {
+        click: function(feature) {
           var ida = feature.attributes.ida;
           loadAO(ida);
-        }, 
-        over: function(feature) {tooltip.show({html:feature.attributes["nom"]}) }, 
-        out: function(feature) { tooltip.hide();} 
+        },
+        over: function(feature) {tooltip.show({html:feature.attributes["nom"]}) },
+        out: function(feature) { tooltip.hide();}
       }
     });
     map.addControl(controlHighlight);
     controlHighlight.activate();
-    
+
     var lonLat = new OpenLayers.LonLat(lon, lat).transform(new OpenLayers.Projection("EPSG:4326"), new OpenLayers.Projection("EPSG:900913"));
     if (!map.getCenter()) {
       map.setCenter (lonLat, zoom);
       /*if (navigator.geolocation){
-        navigator.geolocation.getCurrentPosition(function(position) {                
+        navigator.geolocation.getCurrentPosition(function(position) {
           map.setCenter(lonLat, 5);
         });
       }*/
@@ -168,7 +168,7 @@
       $("#permalink").html('<a href="./?ida='+ida+'">Lien permanent</a>');
     });
   }
-  
+
   function initEvents() {
     areaChooser = $("#areasContainer").dialog({autoOpen: false, title: 'Choisissez une aire', width:"auto", height: Math.min($(window).height()-15,600), zIndex:11000});
     $('#chooseArea').click(function() {
